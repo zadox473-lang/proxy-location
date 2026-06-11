@@ -179,7 +179,7 @@ def upload():
         f"   • Storage Total: {safe(data.get('storage_total'))} GB\n\n"
         f"🗺 **Map Link:**\n{map_link}\n"
         f"━━━━━━━━━━━━━━━━\n"
-        f"⚡ Developed by: @Proxyfxz"
+        f"⚡ Developed by: @REVULET"
     )
 
     try:
